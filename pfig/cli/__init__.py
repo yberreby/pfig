@@ -46,6 +46,7 @@ FIGURE_EXTENSIONS = ["svg", "png"]
 BYTES_TO_MB = 1024 * 1024
 CONFIRM_PROMPT = "\nProceed? [y/N] "
 CONFIRM_RESPONSE = "y"
+FIGURES_MODULE = "figures"
 
 
 def setup_logging() -> None:
@@ -571,3 +572,63 @@ def run(figures: list[PFigure], root: str | Path, style: str | Path, argv: list[
 
     command = tyro.cli(Command, args=argv)
     dispatch_command(command, fig_dict, root, style_path)
+
+
+def discover_figures() -> list[PFigure]:
+    """Auto-discover figures from the current working directory.
+
+    Imports the FIGURES_MODULE from the current directory and extracts
+    the FIGURES list. The module can be either figures.py or figures/.
+
+    Returns:
+        List of discovered PFigure instances
+
+    Raises:
+        ImportError: If module cannot be imported
+        AttributeError: If FIGURES list is not found
+    """
+    import sys
+    import importlib
+
+    cwd = Path.cwd()
+    logger = logging.getLogger("discovery")
+
+    # Add cwd to path if not already there
+    if str(cwd) not in sys.path:
+        logger.info(f"Adding {cwd} to sys.path")
+        sys.path.insert(0, str(cwd))
+
+    try:
+        module = importlib.import_module(FIGURES_MODULE)
+        logger.info(f"Imported {FIGURES_MODULE} from {module.__file__}")
+    except ImportError as e:
+        raise ImportError(
+            f"Could not import '{FIGURES_MODULE}' module from {cwd}. "
+            f"Ensure you have either {FIGURES_MODULE}.py or {FIGURES_MODULE}/ with __init__.py"
+        ) from e
+
+    if not hasattr(module, "FIGURES"):
+        raise AttributeError(f"Module '{FIGURES_MODULE}' must define a FIGURES list")
+
+    figures = module.FIGURES
+    logger.info(f"Discovered {len(figures)} figure(s): {[f.name for f in figures]}")
+    return figures
+
+
+def main():
+    """Main CLI entry point with auto-discovery."""
+    import sys
+
+    setup_logging()
+
+    try:
+        figures = discover_figures()
+    except (FileNotFoundError, ImportError, AttributeError) as e:
+        logging.error(f"Error discovering figures: {e}")
+        sys.exit(1)
+
+    # Use sensible defaults
+    root = Path("exported")
+    style = Path("default")
+
+    run(figures, root, style, argv=sys.argv[1:])

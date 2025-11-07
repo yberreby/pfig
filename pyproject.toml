@@ -9,6 +9,9 @@ dependencies = [
     "tyro>=0.9.35",
 ]
 
+[project.scripts]
+pfig = "pfig.cli:main"
+
 [dependency-groups]
 dev = [
     "basedpyright>=1.33.0",

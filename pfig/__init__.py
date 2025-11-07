@@ -2,7 +2,7 @@
 
 from .pfigure import PFigure
 from .types import ComputeResult, PlotResult, Metadata
-from .cli import run
+from .cli import run, main
 
 __all__ = [
     "PFigure",
@@ -10,4 +10,5 @@ __all__ = [
     "PlotResult",
     "Metadata",
     "run",
+    "main",
 ]

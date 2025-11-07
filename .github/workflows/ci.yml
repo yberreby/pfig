@@ -48,3 +48,11 @@ jobs:
       - name: Run type checking
         continue-on-error: false
         run: uv run basedpyright
+
+      - name: Smoketest demo
+        continue-on-error: false
+        working-directory: ./demo
+        run: |
+          uv run pfig list
+          uv run pfig generate lorenz
+          uv run pfig generate bifurcation
