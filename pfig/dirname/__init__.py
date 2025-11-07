@@ -3,6 +3,7 @@
 import json
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
 # Constants
 TIMESTAMP_FORMAT = "%Y-%m-%d_%H%M%S"
@@ -15,7 +16,9 @@ SECONDS_IN_HOUR = 3600
 SECONDS_IN_DAY = 86400
 
 
-def format_dirname(timestamp: datetime, git_info: dict, suffix: str = "") -> str:
+def format_dirname(
+    timestamp: datetime, git_info: dict[str, Any], suffix: str = ""
+) -> str:
     """Format directory name from components.
 
     Format: YYYY-MM-DD_HHMMSS_commit[-dirty]_[suffix]
@@ -31,7 +34,7 @@ def format_dirname(timestamp: datetime, git_info: dict, suffix: str = "") -> str
     return "_".join(parts)
 
 
-def parse_dirname(dirname: str) -> dict:
+def parse_dirname(dirname: str) -> dict[str, Any]:
     """Parse directory name into components."""
     parts = dirname.split("_")
     if len(parts) < 3:  # YYYY-MM-DD_HHMMSS_commit minimum

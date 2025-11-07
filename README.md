@@ -1,8 +1,10 @@
 # pfig (**p**aper **fig**ures)
 
-This is a small, opinionated library to facilitate the disciplined development and export of publication-ready figures using `matplotlib` and `polars`.
+This is a small, opinionated library to facilitate the disciplined development and export of publication-ready figures using `matplotlib`, with a `tyro`-based CLI.
 
 **Disclaimer**: I am writing this for my own use; for now, expect API breakage with no support commitment.
+
+## Features
 
 - **Decoupled computation and rendering.**
   - Code that _prepares a figure's data_ is kept distinct from _code that turns this data into beautiful visuals_.
@@ -16,3 +18,22 @@ This is a small, opinionated library to facilitate the disciplined development a
 - **Validation and safety.**
   - Directory names use readable formats without shell-problematic characters.
   - Automatic validation ensures directory names match their metadata contents.
+
+## Usage
+
+See `./demo/`.
+
+## Development commands
+
+```bash
+# format
+uv run ruff format
+# lint
+uv run ruff check --fix
+# type check
+uv run basedpyright
+# test
+uv run pytest
+# all of the above
+uv run just
+```

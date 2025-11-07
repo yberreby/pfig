@@ -1,16 +1,25 @@
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Any
-from matplotlib.figure import Figure as MatplotlibFigure
+
+from ..types import ComputeResult, PlotResult, Metadata
 
 
 @dataclass
 class PFigure:
-    """Simple dataclass-based paper figure with composable compute/plot functions."""
+    """Simple dataclass-based paper figure with composable compute/serialize/deserialize/plot functions.
+
+    compute: Pure computation, returns ComputeResult
+    serialize: Saves data to output_dir
+    deserialize: Loads data from data_dir
+    plot: Pure visualization, returns PlotResult
+    """
 
     name: str
-    compute: Callable[[], tuple[Any, dict]]
-    plot: Callable[[Any, dict], tuple[MatplotlibFigure, dict]]
+    compute: Callable[[], ComputeResult]
+    serialize: Callable[[Any, Path], None]
+    deserialize: Callable[[Path], Any]
+    plot: Callable[[Any, Metadata], PlotResult]
 
     def get_compute_dir(self, root: Path, run_id: str | None = None) -> Path:
         """Get the compute directory for this figure.

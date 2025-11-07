@@ -6,13 +6,15 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "matplotlib>=3.10.7",
-    "polars>=1.35.1",
+    "tyro>=0.9.35",
 ]
 
 [dependency-groups]
 dev = [
+    "basedpyright>=1.33.0",
     "pytest>=8.4.2",
     "ruff>=0.14.4",
+    "rust-just>=1.43.0",
 ]
 
 
@@ -20,6 +22,18 @@ dev = [
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
+reportUnknownMemberType = false
+reportAny = false
+reportUnknownVariableType = false
+reportUnknownParameterType = false
+reportUnknownArgumentType = false
+reportMissingParameterType = false
+reportImplicitStringConcatenation = false
+reportExplicitAny = false
+reportUnusedCallResult = false
 
 [tool.pytest.ini_options]
 testpaths = ["pfig", "tests"]
