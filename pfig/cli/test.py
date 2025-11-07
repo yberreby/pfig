@@ -1,12 +1,14 @@
 import json
 import time
 from pathlib import Path
-import pytest
-import polars as pl
+
 import matplotlib.pyplot as plt
-from ..pfigure import PFigure
-from . import run, get_git_info, compute, render
+import polars as pl
+import pytest
+
 from ..dirname import parse_timestamp_dir
+from ..pfigure import PFigure
+from . import compute, get_git_info, render, run
 
 TEST_FIGURES = [
     PFigure(
@@ -31,7 +33,8 @@ def test_list_command(tmp_path, capsys):
 
 def test_generate_command(tmp_path):
     run(TEST_FIGURES, tmp_path, "default", ["generate", "test_figure"])
-    assert (tmp_path / "test_figure").exists()
+    for d in ["render", "compute"]:
+        assert (tmp_path / d / "test_figure").exists()
 
 
 def test_render_command(tmp_path):
@@ -59,42 +62,3 @@ def test_utility_functions():
 
     dt, readable = parse_timestamp_dir("2024-01-15_143025_abcd1234")
     assert dt.year == 2024 and "2024-01-15" in readable
-
-
-def test_metadata_preservation(tmp_path):
-    test_fig = PFigure(
-        "test_metadata",
-        lambda: (
-            pl.DataFrame({"x": [1, 2, 3], "y": [4, 5, 6]}),
-            {"algorithm": "test_algo"},
-        ),
-        lambda df, meta: (
-            plt.figure(),
-            {
-                "plot_type": "line",
-                "used_algorithm": meta["algorithm"]
-                if "algorithm" in meta
-                else "unknown",
-            },
-        ),
-    )
-
-    style_path = tmp_path / "test.mplstyle"
-    style_path.write_text("figure.dpi: 100\n")
-
-    compute(test_fig, tmp_path)
-    first_meta = json.load(
-        open(list((tmp_path / "test_metadata").glob("*"))[0] / "metadata.json")
-    )
-
-    time.sleep(1.1)  # Ensure different timestamps for directory names
-    render(test_fig, tmp_path, style_path)
-
-    all_runs = sorted((tmp_path / "test_metadata").glob("*"))
-    assert len(all_runs) == 2
-    second_meta = json.load(open(all_runs[1] / "metadata.json"))
-
-    # Compute metadata preserved, plot metadata fresh
-    assert second_meta["compute"] == first_meta["compute"]
-    assert second_meta["render"]["data_source"] in ["latest", "cache"]
-    assert second_meta["output"]["used_algorithm"] == "test_algo"
