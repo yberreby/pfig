@@ -96,4 +96,7 @@ uv run basedpyright
 uv run pytest
 # all of the above
 uv run just
+# generate demo figure (defaults to lorenz)
+uv run just demo
+uv run just demo bifurcation
 ```

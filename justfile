@@ -11,3 +11,6 @@ test:
 
 typecheck:
     uv run basedpyright
+
+demo figure='lorenz':
+    cd demo && uv run pfig generate {{figure}}
