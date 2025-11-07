@@ -1,6 +1,6 @@
 # pfig (**p**aper **fig**ures)
 
-This is a small, opinionated library to facilitate the disciplined development and export of publication-ready figures using `matplotlib`.
+This is a small, opinionated library to facilitate the disciplined development and export of publication-ready figures using `matplotlib` and `polars`.
 
 **Disclaimer**: I am writing this for my own use; for now, expect API breakage with no support commitment.
 
