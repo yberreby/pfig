@@ -1,5 +1,3 @@
-import json
-import time
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -8,7 +6,7 @@ import pytest
 
 from ..dirname import parse_timestamp_dir
 from ..pfigure import PFigure
-from . import compute, get_git_info, render, run
+from . import get_git_info, run
 
 TEST_FIGURES = [
     PFigure(
