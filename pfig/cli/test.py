@@ -1,4 +1,6 @@
 from pathlib import Path
+import threading
+import time
 
 import matplotlib.pyplot as plt
 import polars as pl
@@ -72,3 +74,34 @@ def test_utility_functions():
 
     dt, readable = parse_timestamp_dir("2024-01-15_143025_abcd1234")
     assert dt.year == 2024 and "2024-01-15" in readable
+
+
+def test_race_condition_render_before_compute_finishes(tmp_path):
+    """Verify fix: render waits for complete marker, doesn't use incomplete data."""
+
+    def slow_serialize(data: pl.DataFrame, output_dir: Path) -> None:
+        time.sleep(0.5)  # Simulate slow computation
+        data.write_parquet(output_dir / "data.parquet")
+
+    slow_fig = PFigure(
+        "slow",
+        lambda: ComputeResult(data=pl.DataFrame({"x": [1]}), metadata={}),
+        slow_serialize,
+        lambda d: pl.read_parquet(d / "data.parquet"),
+        lambda data, meta: PlotResult(figure=plt.figure(), metadata={}),
+    )
+
+    # Start compute in background
+    compute_thread = threading.Thread(
+        target=run, args=([slow_fig], tmp_path, "default", ["compute", "slow"])
+    )
+    compute_thread.start()
+
+    # Wait for directory creation but not completion
+    time.sleep(0.1)
+
+    # Try to render - should fail because no complete runs exist yet
+    with pytest.raises(FileNotFoundError, match="No complete compute runs found"):
+        run([slow_fig], tmp_path, "default", ["render", "slow"])
+
+    compute_thread.join()

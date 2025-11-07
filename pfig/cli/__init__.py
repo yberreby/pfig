@@ -40,6 +40,7 @@ META_DATA_SOURCE = "data_source"
 # File names
 METADATA_FILE = "metadata.json"
 MANIFEST_FILE = "manifest.json"
+COMPLETE_MARKER = ".complete"
 FIGURE_EXTENSIONS = ["svg", "png"]
 
 # Constants
@@ -74,13 +75,18 @@ def load_manifest(root: Path) -> dict[str, str]:
 
 
 def get_latest_run_dir(compute_dir: Path) -> Path:
-    """Find the most recent run directory in a compute directory."""
+    """Find the most recent complete run directory in a compute directory."""
     if not compute_dir.exists():
         raise FileNotFoundError(f"No compute directory found: {compute_dir}")
 
-    data_dirs = [d for d in compute_dir.glob("*") if d.is_dir()]
+    # Only consider directories with completion marker
+    data_dirs = [
+        d
+        for d in compute_dir.glob("*")
+        if d.is_dir() and (d / COMPLETE_MARKER).exists()
+    ]
     if not data_dirs:
-        raise FileNotFoundError(f"No compute runs found in {compute_dir}")
+        raise FileNotFoundError(f"No complete compute runs found in {compute_dir}")
 
     def get_timestamp(path: Path) -> datetime:
         dt, _ = parse_timestamp_dir(path.name)
@@ -205,6 +211,9 @@ def compute(fig: PFigure, root: Path) -> None:
     }
 
     save_metadata(metadata, output_dir, logger)
+
+    # Mark computation as complete (prevents race with render)
+    (output_dir / COMPLETE_MARKER).touch()
 
     total_duration = time.time() - total_start
     logger.info(f"Done! Total time: {total_duration:.2f}s")
