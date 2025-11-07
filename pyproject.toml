@@ -12,6 +12,7 @@ dependencies = [
 [dependency-groups]
 dev = [
     "basedpyright>=1.33.0",
+    "polars>=1.35.1",
     "pytest>=8.4.2",
     "ruff>=0.14.4",
     "rust-just>=1.43.0",
