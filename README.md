@@ -4,6 +4,14 @@ This is a small, opinionated library to facilitate the disciplined development a
 
 **Disclaimer**: I am writing this for my own use; for now, expect API breakage with no support commitment.
 
+## End-to-end demo
+
+```bash
+git clone https://github.com/yberreby/pfig.git
+cd pfig
+uv run -m demo.run generate lorenz
+```
+
 ## Features
 
 - **Decoupled computation and rendering.**
